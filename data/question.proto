@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+import "common.proto";
+
+service Question {
+    rpc get_question (QuestionRequest) returns (stream QuestionResponse);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Request Messsages
+//////////////////////////////////////////////////////////////////////////////
+
+message QuestionRequest {
+    int32 user_id = 1;
+    // sequence means you want this sequence's question this time, server generate question sequence start from 1.
+    // for your first query, please use sequence 0.
+    // when you get reply successfully, you should use sequence + 1 from reply for your next query.
+    // user_pin for verification
+    string user_pin = 2;
+    string session_key = 3;
+    // int64 sequence = 4;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Response Messsages
+//////////////////////////////////////////////////////////////////////////////
+message QuestionResponse {
+    int32 user_id = 1;
+    // if sequence return -1 means the sequence you request is not ready
+    int64 sequence = 2;
+    // false means server has finish publish, no more question, you can quit after this question
+    // true means server will publish next question soon
+    bool has_next_question = 3;
+	double capital = 4;
+    repeated DoubleArray dailystk = 5;
+    repeated double positions = 6;
+}

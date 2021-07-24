@@ -215,13 +215,13 @@ def decay_linear(df, period=10):
 class Alphas34(object):
     def __init__(self, df_data):
         
-        self.open = df_data['open'].copy()
-        self.high = df_data['high'].copy()
-        self.low = df_data['low'].copy()
-        self.close = df_data['close'].copy()
-        self.volume = df_data['volume'].copy()
-        self.returns = df_data['return'].copy()
-        self.vwap = df_data['vwap'].copy()
+        self.open = df_data['open']
+        self.high = df_data['high']
+        self.low = df_data['low']
+        self.close = df_data['close']
+        self.volume = df_data['volume']
+        self.returns = df_data['return']
+        self.vwap = df_data['vwap']
     
     def alpha001(self):
         inner = self.close
@@ -422,6 +422,13 @@ def alphas34(df):
         df['alpha101']=stock.alpha101()  
         return df
 
+def getalphas34(df):
+    out = []
+    df_grouped = df.groupby('stock')
+    for group_name, df_group in df_grouped:
+        out.append(alphas34(df_group))
+    return pd.concat(out)
+
 def alphasbasic(data):
     
     intermediate = pd.DataFrame(index = data.index)
@@ -480,10 +487,12 @@ def alphasbasic(data):
 def getHFalphas(data):
 
     data['return'] = data[['stock', 'close']].groupby('stock').transform(lambda x: abs2percB(x.values, 1))
+    data['vwap'] = data['tvr']/data['volume']
     data['obj10'] = data[['stock', 'close']].groupby('stock') \
         .transform(lambda x: laggingF(abs2percF(x.values, 10), 1))
-    data = alphas34(data)
     data = alphasbasic(data)
+    data = getalphas34(data)
+    data.sort_index(inplace=True)
 
     return data
 

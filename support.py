@@ -461,26 +461,9 @@ def alphasbasic(data):
     data['momentum10'] = data[['stock', 'close']].groupby('stock').transform(lambda x: abs2percB(x.values, 10))
     data['momentum20'] = data[['stock', 'close']].groupby('stock').transform(lambda x: abs2percB(x.values, 20))
 
-    # trendstrength   
-    intermediate['close5']=data[['stock', 'close']].groupby('stock').transform(lambda x: laggingB(x.values, 5))
-    intermediate['close10']=data[['stock', 'close']].groupby('stock').transform(lambda x: laggingB(x.values, 10))
-    intermediate['close20']=data[['stock', 'close']].groupby('stock').transform(lambda x: laggingB(x.values, 20))
-    intermediate['deltaclose']=(data['close']-data[['stock', 'close']].groupby('stock').transform(lambda x: laggingB(x.values, 1))['close']).abs()
-    data['trendstrength5'] = ((data['close']-intermediate['close5'])/data[['stock']].join(intermediate['deltaclose']).groupby('stock') \
-                                      .transform(lambda x : x.rolling(5).sum())['deltaclose']).fillna(0)
-    data['trendstrength10'] = ((data['close']-intermediate['close10'])/data[['stock']].join(intermediate['deltaclose']).groupby('stock') \
-                                      .transform(lambda x : x.rolling(10).sum())['deltaclose']).fillna(0)
-    data['trendstrength20'] = ((data['close']-intermediate['close20'])/data[['stock']].join(intermediate['deltaclose']).groupby('stock') \
-                                      .transform(lambda x : x.rolling(20).sum())['deltaclose']).fillna(0)
-
     # volatility
     data['volatility5t'] = data[['stock', 'return']].groupby('stock').transform(lambda x : x.rolling(5).std())
-    data['volatility10t'] = data[['stock', 'return']].groupby('stock').transform(lambda x : x.rolling(10).std())
     data['volatility20t'] = data[['stock', 'return']].groupby('stock').transform(lambda x : x.rolling(20).std())
-
-    # volume
-    intermediate['volume10t'] = data[['stock', 'volume']].groupby('stock').transform(lambda x : x.rolling(10).mean())
-    data['volume_perc10'] = data[['stock']].join(intermediate['volume10t']).groupby('stock').transform(lambda x: abs2percB(x.values, 1)).fillna(0)
 
     return data
 

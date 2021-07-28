@@ -440,30 +440,14 @@ def alphasbasic(data):
 
     # MPC
     intermediate['Mt']=(data['bid1_price']+data['ask1_price'])/2
-    for i in range(1,5+1):
+    for i in range(1,10+1):
         data['MPC'+str(i)] = data[['stock']].join(intermediate['Mt']) \
             .groupby('stock').transform(lambda x: abs2percB(x.values, i))
-        
-    # OFI
-    for i in range(1,5+1):
-        intermediate['bid'+str(i)+'_volume-1']=data[['stock', 'bid'+str(i)+'_volume']].groupby('stock').transform(lambda x: laggingB(x.values, 1))
-        intermediate['ask'+str(i)+'_volume-1']=data[['stock', 'ask'+str(i)+'_volume']].groupby('stock').transform(lambda x: laggingB(x.values, 1))
-        intermediate['bid'+str(i)+'_price-1']=data[['stock', 'bid'+str(i)+'_price']].groupby('stock').transform(lambda x: laggingB(x.values, 1))
-        intermediate['ask'+str(i)+'_price-1']=data[['stock', 'ask'+str(i)+'_price']].groupby('stock').transform(lambda x: laggingB(x.values, 1))
-        intermediate['deltavb']=(intermediate['bid'+str(i)+'_price-1']>data['bid'+str(i)+'_price'])*(-intermediate['bid'+str(i)+'_volume-1'])+(intermediate['bid'+str(i)+'_price-1']==data['bid'+str(i)+'_price'])*(data['bid'+str(i)+'_volume']-intermediate['bid'+str(i)+'_volume-1'])+(intermediate['bid'+str(i)+'_price-1']<data['bid'+str(i)+'_price'])*(data['bid'+str(i)+'_volume'])
-        intermediate['deltava']=(intermediate['ask'+str(i)+'_price-1']>data['ask'+str(i)+'_price'])*(data['ask'+str(i)+'_volume'])+(intermediate['ask'+str(i)+'_price-1']==data['ask'+str(i)+'_price'])*(data['ask'+str(i)+'_volume']-intermediate['ask'+str(i)+'_volume-1'])+(intermediate['ask'+str(i)+'_price-1']<data['ask'+str(i)+'_price'])*(-intermediate['ask'+str(i)+'_volume-1'])
-        data['OFI'+str(i)]=intermediate['deltavb']-intermediate['deltava']
 
     # momentum
-    data['momentum1'] = data[['stock', 'close']].groupby('stock').transform(lambda x: abs2percB(x.values, 1))
-    data['momentum2'] = data[['stock', 'close']].groupby('stock').transform(lambda x: abs2percB(x.values, 2))
     data['momentum5'] = data[['stock', 'close']].groupby('stock').transform(lambda x: abs2percB(x.values, 5))
     data['momentum10'] = data[['stock', 'close']].groupby('stock').transform(lambda x: abs2percB(x.values, 10))
     data['momentum20'] = data[['stock', 'close']].groupby('stock').transform(lambda x: abs2percB(x.values, 20))
-
-    # volatility
-    data['volatility5t'] = data[['stock', 'return']].groupby('stock').transform(lambda x : x.rolling(5).std())
-    data['volatility20t'] = data[['stock', 'return']].groupby('stock').transform(lambda x : x.rolling(20).std())
 
     return data
 
